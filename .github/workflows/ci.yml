@@ -1,0 +1,24 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install bats, shellcheck and tmux
+        run: sudo apt-get update && sudo apt-get install -y bats shellcheck tmux
+      - name: shellcheck
+        run: shellcheck muxpoon muxpoon.tmux test/stub/tmux
+      - name: bats
+        run: bats test
+        env:
+          MUXPOON_REAL_TMUX: "1"

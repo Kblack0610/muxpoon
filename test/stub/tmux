@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# A recording tmux for test/muxpoon.bats and test/plugin.bats: each call lands in
+# $STUB_DIR/calls.log, so a test asserts which command was issued.
+#
+# Fixtures in $STUB_DIR, all optional:
+#   sessions[.<server>]  the sessions that exist; with neither file, every session exists
+#   windows[.<server>]   created<TAB>@id<TAB>name rows for list-windows
+#   opt.<name>           the value of @muxpoon-<name>
+# Where the client sits comes from STUB_SOCKET, STUB_SESSION, STUB_WINDOW_ID,
+# STUB_SESSION_CREATED and STUB_WINDOW_NAME.
+set -uo pipefail
+
+FIX="${STUB_DIR:?STUB_DIR unset: this stub only runs under the tests}"
+printf 'tmux %s\n' "$*" >> "$FIX/calls.log"
+
+server="" verb="" target="" prev=""
+for a in "$@"; do
+  case "$prev" in
+    -L) server="$a" ;;
+    -S) server="${a##*/}" ;;
+    -t) target="$a" ;;
+  esac
+  if [ -z "$verb" ] && [ "$prev" != -L ] && [ "$prev" != -S ]; then
+    case "$a" in -*) ;; *) verb="$a" ;; esac
+  fi
+  prev="$a"
+done
+
+# fixture <name> -- the per-server file when there is one, else the shared one.
+fixture() {
+  if [ -n "$server" ] && [ -f "$FIX/$1.$server" ]; then
+    printf '%s' "$FIX/$1.$server"
+  else
+    printf '%s' "$FIX/$1"
+  fi
+}
+
+case "$verb" in
+  display-message)
+    case " $* " in
+      *' -p '*)
+        printf '%s\t%s\t%s\t%s\t%s\n' "${STUB_SOCKET:-}" "${STUB_SESSION:-}" "${STUB_WINDOW_ID:-@7}" \
+          "${STUB_SESSION_CREATED:-1000}" "${STUB_WINDOW_NAME:-sh}"
+        ;;
+    esac
+    ;;
+  show-option)
+    name="${*: -1}"
+    f="$FIX/opt.${name#@muxpoon-}"
+    [ -f "$f" ] && cat "$f"
+    ;;
+  has-session)
+    f="$(fixture sessions)"
+    [ -f "$f" ] || exit 0
+    grep -qxF -- "${target#=}" "$f"
+    exit
+    ;;
+  list-windows)
+    f="$(fixture windows)"
+    [ -f "$f" ] && cat "$f"
+    ;;
+esac
+exit 0
