@@ -78,6 +78,13 @@ slot_for() {
   [[ "$output" == *"prefix"*" e "*"display-popup -E"*"60%"*"80%"*"muxpoon menu"* ]]
 }
 
+@test "each bind carries its note, so list-keys -N says what it does" {
+  run tmux -L "$A" list-keys -N
+  [[ "$output" == *"M-1"*"muxpoon: jump to pinned slot 1, on any server"* ]]
+  [[ "$output" == *"C-a"*"muxpoon: pin this window to the next slot; again unpins it"* ]]
+  [[ "$output" == *" e "*"muxpoon: edit the pinned windows"* ]]
+}
+
 @test "Prefix+a pins this window, M-1 comes back to it, Prefix+a again unpins" {
   press C-b a
   settles pinned 1

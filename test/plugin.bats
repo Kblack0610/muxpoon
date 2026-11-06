@@ -14,18 +14,18 @@ set_opt() { printf '%s\n' "$2" > "$STUB_DIR/opt.$1"; }
 @test "the defaults: a and C-a toggle, M-1 to M-4 jump, e opens the menu" {
   run "$P"
   [ "$status" -eq 0 ]
-  called "tmux bind-key a run-shell $M toggle"
-  called "tmux bind-key C-a run-shell $M toggle"
-  called "tmux bind-key -n M-1 run-shell $M jump 1"
-  called "tmux bind-key -n M-4 run-shell $M jump 4"
+  called "tmux bind-key -N muxpoon: pin this window to the next slot; again unpins it a run-shell $M toggle"
+  called "tmux bind-key -N muxpoon: pin this window to the next slot; again unpins it C-a run-shell $M toggle"
+  called "tmux bind-key -N muxpoon: jump to pinned slot 1, on any server -n M-1 run-shell $M jump 1"
+  called "tmux bind-key -N muxpoon: jump to pinned slot 4, on any server -n M-4 run-shell $M jump 4"
   not_called "M-5"
-  called "tmux bind-key e display-popup -E -w 80% -h 60% $M menu"
+  called "tmux bind-key -N muxpoon: edit the pinned windows e display-popup -E -w 80% -h 60% $M menu"
 }
 
 @test "@muxpoon-slots sets how many jump keys are bound" {
   set_opt slots 6
   run "$P"
-  called "tmux bind-key -n M-6 run-shell $M jump 6"
+  called "tmux bind-key -N muxpoon: jump to pinned slot 6, on any server -n M-6 run-shell $M jump 6"
   not_called "M-7"
 }
 
@@ -45,10 +45,10 @@ set_opt() { printf '%s\n' "$2" > "$STUB_DIR/opt.$1"; }
   set_opt popup-width 50%
   set_opt popup-height 40%
   run "$P"
-  called "tmux bind-key p run-shell $M toggle"
-  called "tmux bind-key C-p run-shell $M toggle"
-  called "tmux bind-key m display-popup -E -w 50% -h 40% $M menu"
-  called "tmux bind-key -n C-2 run-shell $M jump 2"
+  called "tmux bind-key -N muxpoon: pin this window to the next slot; again unpins it p run-shell $M toggle"
+  called "tmux bind-key -N muxpoon: pin this window to the next slot; again unpins it C-p run-shell $M toggle"
+  called "tmux bind-key -N muxpoon: edit the pinned windows m display-popup -E -w 50% -h 40% $M menu"
+  called "tmux bind-key -N muxpoon: jump to pinned slot 2, on any server -n C-2 run-shell $M jump 2"
   not_called "bind-key a "
   not_called "M-1"
 }
@@ -73,5 +73,5 @@ set_opt() { printf '%s\n' "$2" > "$STUB_DIR/opt.$1"; }
   mkdir "$BATS_TEST_TMPDIR/links"
   ln -s "$P" "$BATS_TEST_TMPDIR/links/muxpoon.tmux"
   run "$BATS_TEST_TMPDIR/links/muxpoon.tmux"
-  called "tmux bind-key a run-shell $M toggle"
+  called "tmux bind-key -N muxpoon: pin this window to the next slot; again unpins it a run-shell $M toggle"
 }

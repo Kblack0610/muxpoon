@@ -16,11 +16,11 @@ opt() {
 }
 
 for key in $(opt toggle-keys 'a C-a'); do
-  tmux bind-key "$key" run-shell "$bin toggle"
+  tmux bind-key -N "muxpoon: pin this window to the next slot; again unpins it" "$key" run-shell "$bin toggle"
 done
 
 for key in $(opt menu-keys e); do
-  tmux bind-key "$key" display-popup -E -w "$(opt popup-width 80%)" -h "$(opt popup-height 60%)" "$bin menu"
+  tmux bind-key -N "muxpoon: edit the pinned windows" "$key" display-popup -E -w "$(opt popup-width 80%)" -h "$(opt popup-height 60%)" "$bin menu"
 done
 
 modifier="$(opt jump-modifier M-)"
@@ -34,6 +34,6 @@ case "$slots" in
 esac
 if [ -n "$modifier" ]; then
   for n in $(seq 1 "$slots"); do
-    tmux bind-key -n "$modifier$n" run-shell "$bin jump $n"
+    tmux bind-key -N "muxpoon: jump to pinned slot $n, on any server" -n "$modifier$n" run-shell "$bin jump $n"
   done
 fi

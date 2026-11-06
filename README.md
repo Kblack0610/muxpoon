@@ -36,6 +36,8 @@ run-shell ~/.tmux/plugins/muxpoon/muxpoon.tmux
 | `M-1` to `M-4` | Jump to that slot (no prefix) |
 | `Prefix+e` | Edit the list in `$EDITOR`, in a popup |
 
+Each bind carries a `-N` note, so `Prefix+?` (`tmux list-keys -N`) lists these keys with the rest of tmux's.
+
 If your prefix is `C-a`, you probably want `C-a` to keep sending the prefix: set `@muxpoon-toggle-keys` to `a`.
 
 ## Options
