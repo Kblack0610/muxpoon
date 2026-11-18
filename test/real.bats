@@ -23,6 +23,7 @@ setup() {
   CONF="$BATS_TEST_TMPDIR/tmux.conf"
   cat > "$CONF" <<EOF
 set -sg escape-time 0
+set -g @muxpoon-clear-keys E
 run-shell "$ROOT/muxpoon.tmux"
 EOF
   tmux -L "$A" -f "$CONF" new-session -d -s one -n first -x 100 -y 30
@@ -165,4 +166,17 @@ EOF
   press C-b a
   settles test -s "$BATS_TEST_TMPDIR/elsewhere/list"
   [ ! -e "$LIST" ]
+}
+
+@test "@muxpoon-clear-keys: Prefix+E asks, n keeps the pins, y clears them" {
+  press C-b a
+  settles pinned 1
+  press C-b E
+  press n
+  tmux -L "$A" select-window -t one:second
+  settles at "$A" one:second
+  pinned 1
+  press C-b E
+  press y
+  settles pinned 0
 }

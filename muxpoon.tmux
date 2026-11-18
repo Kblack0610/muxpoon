@@ -23,6 +23,11 @@ for key in $(opt menu-keys e); do
   tmux bind-key -N "muxpoon: edit the pinned windows" "$key" display-popup -E -w "$(opt popup-width 80%)" -h "$(opt popup-height 60%)" "$bin menu"
 done
 
+# Off by default: the obvious keys (E, C) are stock tmux binds.
+for key in $(opt clear-keys none); do
+  tmux bind-key -N "muxpoon: unpin every window, after a y/n prompt" "$key" confirm-before -p "muxpoon: clear every pin? (y/n)" "run-shell '$bin clear'"
+done
+
 modifier="$(opt jump-modifier M-)"
 slots="$(opt slots 4)"
 case "$slots" in
