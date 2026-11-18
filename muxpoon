@@ -15,7 +15,7 @@ usage: muxpoon <verb>
   jump <n>   jump to slot n
   menu       edit the list in $EDITOR: reorder lines, delete a line to unpin
   clear      unpin everything
-  ls        print the slots
+  ls         print the slots
   file       print the list's path
 EOF
 }
@@ -187,8 +187,11 @@ cmd_menu() {
 cmd_clear() {
   local n
   n="$(slots | wc -l | tr -d ' ')"
-  [ ! -e "$SLOT_FILE" ] || : > "$SLOT_FILE"
-  say "cleared $n pins"
+  if [ -e "$SLOT_FILE" ] && ! : 2>/dev/null > "$SLOT_FILE"; then
+    say "cannot write $SLOT_FILE, nothing cleared"
+    return 0
+  fi
+  say "cleared $n pin$([ "$n" = 1 ] || echo s)"
 }
 
 cmd_ls() {
