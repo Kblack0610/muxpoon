@@ -23,6 +23,7 @@ setup() {
   CONF="$BATS_TEST_TMPDIR/tmux.conf"
   cat > "$CONF" <<EOF
 set -sg escape-time 0
+set -g @muxpoon-clear-keys E
 run-shell "$ROOT/muxpoon.tmux"
 EOF
   tmux -L "$A" -f "$CONF" new-session -d -s one -n first -x 100 -y 30
@@ -165,4 +166,35 @@ EOF
   press C-b a
   settles test -s "$BATS_TEST_TMPDIR/elsewhere/list"
   [ ! -e "$LIST" ]
+}
+
+# prompt_open -- the outer pane shows the clear prompt.
+prompt_open() { tmux -L "$O" capture-pane -p -t outer | grep -qF 'clear every pin?'; }
+prompt_closed() { ! prompt_open; }
+
+@test "@muxpoon-clear-keys: Prefix+E asks, n keeps the pins, y clears them" {
+  press C-b a
+  settles pinned 1
+  press C-b E
+  settles prompt_open
+  press n
+  settles prompt_closed
+  pinned 1
+  press C-b E
+  settles prompt_open
+  press y
+  settles pinned 0
+}
+
+@test "the clear key survives a plugin path with a space and a single quote" {
+  local dir="$BATS_TEST_TMPDIR/it's a dir"
+  mkdir "$dir"
+  cp "$ROOT/muxpoon" "$ROOT/muxpoon.tmux" "$dir/"
+  tmux -L "$A" run-shell "$(printf '%q' "$dir/muxpoon.tmux")"
+  press C-b a
+  settles pinned 1
+  press C-b E
+  settles prompt_open
+  press y
+  settles pinned 0
 }

@@ -20,6 +20,14 @@ set_opt() { printf '%s\n' "$2" > "$STUB_DIR/opt.$1"; }
   called "tmux bind-key -N muxpoon: jump to pinned slot 4, on any server -n M-4 run-shell $M jump 4"
   not_called "M-5"
   called "tmux bind-key -N muxpoon: edit the pinned windows e display-popup -E -w 80% -h 60% $M menu"
+  not_called "unpin every window"
+}
+
+@test "@muxpoon-clear-keys binds clear behind a y/n prompt" {
+  set_opt clear-keys E
+  run "$P"
+  [ "$status" -eq 0 ]
+  called "tmux bind-key -N muxpoon: unpin every window, after a y/n prompt E confirm-before -p muxpoon: clear every pin? (y/n) run-shell '$M clear'"
 }
 
 @test "@muxpoon-slots sets how many jump keys are bound" {

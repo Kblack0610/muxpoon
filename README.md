@@ -4,7 +4,7 @@ Pin tmux windows to numbered slots and jump to them with one key, on any tmux se
 
 Press `Prefix+a` in a window and it takes the next slot. `M-1` takes you back to slot 1 from anywhere, including from a different tmux server. `Prefix+e` opens the list in your editor, where you reorder lines to renumber and delete a line to unpin.
 
-The list is a plain file, so pins survive `kill-server` and a reboot. A window that no longer exists falls back to its session.
+The list is a plain file, so pins survive `kill-server` and a reboot. A window that no longer exists falls back to its session. A session that no longer exists keeps its pin: `muxpoon ls` marks it `(gone)`, and a jump to it says so, or hands it to `@muxpoon-goto` to start. `muxpoon clear` empties the list.
 
 It needs tmux 3.2 or later and bash. CI runs it on Linux; macOS is untested.
 
@@ -35,6 +35,7 @@ run-shell ~/.tmux/plugins/muxpoon/muxpoon.tmux
 | `Prefix+a`, `Prefix+C-a` | Pin this window, or unpin it if it is pinned |
 | `M-1` to `M-4` | Jump to that slot (no prefix) |
 | `Prefix+e` | Edit the list in `$EDITOR`, in a popup |
+| set by `@muxpoon-clear-keys` | Clear every pin, after a y/n prompt |
 
 Each bind carries a `-N` note, so `Prefix+?` (`tmux list-keys -N`) lists these keys with the rest of tmux's.
 
@@ -48,6 +49,7 @@ Set these before the plugin loads. The value `none` turns off a group of keys.
 |---|---|---|
 | `@muxpoon-toggle-keys` | `a C-a` | Prefix keys that pin and unpin, space separated |
 | `@muxpoon-menu-keys` | `e` | Prefix keys that open the list |
+| `@muxpoon-clear-keys` | `none` | Prefix keys that clear every pin, after a y/n prompt; off by default because the obvious keys are stock tmux binds |
 | `@muxpoon-jump-modifier` | `M-` | What goes before the slot number in a jump key |
 | `@muxpoon-slots` | `4` | How many jump keys to bind, 1 to 9 |
 | `@muxpoon-popup-width` | `80%` | Width of the list popup |
@@ -105,6 +107,7 @@ muxpoon runs it with two more arguments, the server and either `session` or `ses
 muxpoon toggle     pin or unpin this window
 muxpoon jump <n>   jump to slot n
 muxpoon menu       edit the list in $EDITOR
+muxpoon clear      unpin everything
 muxpoon ls         print the slots
 muxpoon file       print the list's path
 ```

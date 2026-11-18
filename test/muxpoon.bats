@@ -319,3 +319,39 @@ EOF
   [ "$status" -eq 0 ]
   says "usage: muxpoon"
 }
+
+@test "clear empties the list, gone sessions included, and says how many went" {
+  pinw red api @1 1000 sh
+  printf 'blue\told\n' >> "$LIST"
+  run "$M" clear
+  [ "$status" -eq 0 ]
+  shows "cleared 2 pins"
+  [ -e "$LIST" ] && [ ! -s "$LIST" ]
+  run "$M" ls
+  says "nothing pinned"
+}
+
+@test "clear with no list creates none" {
+  run "$M" clear
+  [ "$status" -eq 0 ]
+  shows "cleared 0 pins"
+  [ ! -e "$LIST" ]
+}
+
+@test "clear of one pin says pin, not pins" {
+  pinw red api @1 1000 sh
+  run "$M" clear
+  shows "cleared 1 pin"
+  not_called "cleared 1 pins"
+}
+
+@test "clear that cannot write the list says so and keeps it" {
+  pinw red api @1 1000 sh
+  chmod a-w "$LIST"
+  run "$M" clear
+  chmod u+w "$LIST"
+  [ "$status" -eq 0 ]
+  shows "cannot write $LIST, nothing cleared"
+  not_called "cleared 1"
+  [ -s "$LIST" ]
+}

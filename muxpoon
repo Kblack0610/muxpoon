@@ -14,6 +14,7 @@ usage: muxpoon <verb>
   toggle     pin or unpin this window
   jump <n>   jump to slot n
   menu       edit the list in $EDITOR: reorder lines, delete a line to unpin
+  clear      unpin everything
   ls         print the slots
   file       print the list's path
 EOF
@@ -183,6 +184,16 @@ cmd_menu() {
   rm -f "$tmp"
 }
 
+cmd_clear() {
+  local n
+  n="$(slots | wc -l | tr -d ' ')"
+  if [ -e "$SLOT_FILE" ] && ! : 2>/dev/null > "$SLOT_FILE"; then
+    say "cannot write $SLOT_FILE, nothing cleared"
+    return 0
+  fi
+  say "cleared $n pin$([ "$n" = 1 ] || echo s)"
+}
+
 cmd_ls() {
   local cur="" i=0 row srv sess wid stamp label mark state live
   cur="$(here)" || cur=""
@@ -205,8 +216,9 @@ case "${1:-}" in
   toggle) cmd_toggle ;;
   jump)   shift; cmd_jump "${1:-}" ;;
   menu)   cmd_menu ;;
+  clear)  cmd_clear ;;
   ls)     cmd_ls ;;
   file)   printf '%s\n' "$SLOT_FILE" ;;
   -h|--help|help|'') usage ;;
-  *)      die "unknown verb: $1 (toggle | jump <n> | menu | ls | file)" ;;
+  *)      die "unknown verb: $1 (toggle | jump <n> | menu | clear | ls | file)" ;;
 esac
