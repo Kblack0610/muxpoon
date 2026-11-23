@@ -6,6 +6,7 @@
 #   sessions[.<server>]  the sessions that exist; with neither file, every session exists
 #   windows[.<server>]   created<TAB>@id<TAB>name rows for list-windows
 #   opt.<name>           the value of @muxpoon-<name>
+# STUB_TMUX_DIR is the directory `-L <name>` resolves a name against (default /tmp/tmux-<uid>).
 # Where the client sits comes from STUB_SOCKET, STUB_SESSION, STUB_WINDOW_ID,
 # STUB_SESSION_CREATED and STUB_WINDOW_NAME.
 set -uo pipefail
@@ -38,6 +39,10 @@ fixture() {
 case "$verb" in
   display-message)
     case " $* " in
+      *' -L '*' #{socket_path}'*)
+        # the -L probe: where tmux would put a socket of that name
+        printf '%s/%s\n' "${STUB_TMUX_DIR:-/tmp/tmux-$(id -u)}" "$server"
+        ;;
       *' -p '*)
         printf '%s\t%s\t%s\t%s\t%s\n' "${STUB_SOCKET:-}" "${STUB_SESSION:-}" "${STUB_WINDOW_ID:-@7}" \
           "${STUB_SESSION_CREATED:-1000}" "${STUB_WINDOW_NAME:-sh}"
