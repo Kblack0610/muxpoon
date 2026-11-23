@@ -79,7 +79,7 @@ server  session  window_id  session_created  window_name
 
 | Field | Meaning |
 |---|---|
-| `server` | The `-L` socket name, or the full socket path for a server started with `-S` outside tmux's own directory |
+| `server` | The `-L` socket name when tmux resolves `-L <name>` to this server's socket, else the full socket path (a server started with `-S` elsewhere) |
 | `session` | The session name |
 | `window_id` | The tmux window id, such as `@3` |
 | `session_created` | The session's creation time, in epoch seconds |

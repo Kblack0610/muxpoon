@@ -52,15 +52,17 @@ slots() { awk -F'\t' 'NF >= 2 && $1 != "" && $2 != ""' "$SLOT_FILE" 2>/dev/null;
 # The matched part of a slot line: server, session, window id, stamp.
 key() { awk -F'\t' '{ print $1 FS $2 FS $3 FS $4 }'; }
 
-# server_of <socket_path> -- a socket in tmux's own directory goes by its -L name, any other
-# by its path. realpath, because tmux resolves that directory itself (/tmp is a link on macOS).
+# server_of <socket_path> -- a socket tmux reaches by -L goes by that name, any other by its
+# path. tmux owns where its named sockets live (TMUX_TMPDIR, the uid, symlinks like macOS's
+# /tmp), so ask it: the name is right exactly when `-L <name>` resolves to this socket. A probe
+# that fails or answers otherwise (a -S socket elsewhere, no such server) keeps the path.
 server_of() {
-  local dir
-  dir="$(realpath "${TMUX_TMPDIR:-/tmp}")/tmux-$(id -u)"
-  case "$1" in
-    "$dir"/*) printf '%s' "${1##*/}" ;;
-    *) printf '%s' "$1" ;;
-  esac
+  local name="${1##*/}"
+  if [ "$(tmux -L "$name" display-message -p '#{socket_path}' 2>/dev/null)" = "$1" ]; then
+    printf '%s' "$name"
+  else
+    printf '%s' "$1"
+  fi
 }
 
 sock_flag() {
