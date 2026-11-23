@@ -88,15 +88,23 @@ hook() {
   [ "$(cut -f1 "$LIST")" = "/run/sockets/odd" ]
 }
 
-@test "a name is the server only when tmux resolves -L <name> to that socket" {
+@test "a socket that -L <name> resolves to goes by its name" {
   export STUB_TMUX_DIR="/elsewhere/tmux-1" STUB_SOCKET="/elsewhere/tmux-1/hub" STUB_SESSION=api
   run "$M" toggle
   [ "$(cut -f1 "$LIST")" = "hub" ]
   called "tmux -L hub display-message -p #{socket_path}"
-  export STUB_SOCKET="/tmp/tmux-$(id -u)/hub"
-  rm "$LIST"
+}
+
+@test "a socket that -L <name> resolves elsewhere is kept by path" {
+  export STUB_TMUX_DIR="/elsewhere/tmux-1" STUB_SOCKET="/tmp/tmux-1/hub" STUB_SESSION=api
   run "$M" toggle
-  [ "$(cut -f1 "$LIST")" = "/tmp/tmux-$(id -u)/hub" ]
+  [ "$(cut -f1 "$LIST")" = "/tmp/tmux-1/hub" ]
+}
+
+@test "a failed -L probe keeps the path" {
+  export STUB_NO_SERVER=1 STUB_SOCKET="/tmp/tmux-1/hub" STUB_SESSION=api
+  run "$M" toggle
+  [ "$(cut -f1 "$LIST")" = "/tmp/tmux-1/hub" ]
 }
 
 @test "toggle outside tmux says so and exits 0" {

@@ -54,7 +54,8 @@ key() { awk -F'\t' '{ print $1 FS $2 FS $3 FS $4 }'; }
 
 # server_of <socket_path> -- a socket tmux reaches by -L goes by that name, any other by its
 # path. tmux owns where its named sockets live (TMUX_TMPDIR, the uid, symlinks like macOS's
-# /tmp), so ask it: the name is right exactly when `-L <name>` resolves to this socket.
+# /tmp), so ask it: the name is right exactly when `-L <name>` resolves to this socket. A probe
+# that fails or answers otherwise (a -S socket elsewhere, no such server) keeps the path.
 server_of() {
   local name="${1##*/}"
   if [ "$(tmux -L "$name" display-message -p '#{socket_path}' 2>/dev/null)" = "$1" ]; then
